@@ -3,6 +3,7 @@
 # 
 
 import Connection
+import colors
 
 class Consulta():
 
@@ -96,7 +97,99 @@ class Consulta():
         datasets = []
         s = {}
         s["data"] = _list
+        s["backgroundColor"] =  colors.chartjs_colors[0]
+        s["borderColor"] = colors.chartjs_colors[0]
         datasets.append(s)
+
+        rc = {}
+        rc["labels"] = datas
+        rc["datasets"] = datasets
+
+        return(rc)
+
+    # --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    def dashboard_linha_produto (self, linha_produto, periodo, format=True):
+
+        if (periodo == '2022-XX'):
+            periodo = "('2022-01', '2022-02', '2022-03','2022-04', '2022-05', '2022-06','2022-07', '2022-08', '2022-09','2022-10', '2022-11', '2022-12')"
+        else:
+            periodo = "('"+periodo+"')"
+
+        s = {}
+
+        # faturamento, share faturamento
+        sql = ("SELECT  SUM(VALOR_VENDA) "
+               "FROM DATADRIVEN_CONSULTA.VENDAS_LINHA_PRODUTO "
+               "WHERE   COD_LINHA_PRODUTO = %s AND "
+               "        ANO_MES IN "+periodo)
+        self.my_cursor.execute (sql, (linha_produto))
+        data = self.my_cursor.fetchall ()
+
+        try:
+            faturamento_linha = float(data[0][0])
+        except:
+            faturamento_linha = 0
+
+        sql = ("SELECT  SUM(VALOR_VENDA) "
+               "FROM    DATADRIVEN_CONSULTA.VENDAS_LINHA_PRODUTO "
+               "WHERE   ANO_MES IN "+periodo)
+        self.my_cursor.execute (sql)
+        data = self.my_cursor.fetchall ()
+        faturamento = float(data[0][0])
+
+        sql = ("SELECT  SUM(VALOR) "
+               "FROM    DATADRIVEN_CONSULTA.CUSTOS_LINHA_PRODUTO "
+               "WHERE   COD_LINHA_PRODUTO = %s AND "
+               "        ANO_MES IN "+periodo)
+        self.my_cursor.execute (sql, (linha_produto))
+        data = self.my_cursor.fetchall ()
+
+        try:
+            custos_linha = float(data[0][0])
+        except:
+            custos_linha = 0
+
+
+        if (format == True):
+            s["faturamento_linha"] = "R$ {:,.2f}".format(faturamento_linha)
+            s["share_linha"] = "{:,.2f}".format(faturamento_linha / faturamento * 100) + " %"
+            try:
+                s["margem_linha"] = "{:,.2f}".format(custos_linha / faturamento_linha * 100) + " %"
+            except:
+                s["margem_linha"] = "{:,.2f}".format(0) + " %"
+        else:
+            s["faturamento_linha"] = faturamento_linha
+            s["share_linha"] = faturamento_linha / faturamento * 100
+            try:
+                s["margem_linha"] = custos_linha / faturamento_linha * 100
+            except:
+                s["margem_linha"] = 0
+
+        return (s)
+
+    # --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    def dashboard_indicador_produto (self, indicador, periodo):
+
+        datasets = []
+        datas = ['2022-01', '2022-02', '2022-03','2022-04', '2022-05', '2022-06','2022-07', '2022-08', '2022-09','2022-10', '2022-11', '2022-12']
+        
+        label = ['Sabonete', 'Shampoo', 'Lenço Umedecido', 'Creme Dental']
+        j = 0
+        for i in ['1', '2', '3', '4']:
+            _list = []
+            for periodo in datas:
+                rc = self.dashboard_linha_produto (i, periodo, False)
+                _list.append (rc[indicador])
+
+            s = {}
+            s["label"] = label[j]
+            s["data"] = _list
+            s["backgroundColor"] =  colors.chartjs_colors[j]
+            s["borderColor"] = colors.chartjs_colors[j]
+            datasets.append(s)
+            j += 1
 
         rc = {}
         rc["labels"] = datas

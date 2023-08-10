@@ -29,6 +29,21 @@ def dashboard_indicador():
      rc = obj_data.dashboard_indicador (indicador, periodo)
      return jsonify(rc)
 
+@app.route('/dashboard_linha_produto')
+def dashboard_linha_produto():
+     periodo = request.args.get('periodo')
+     linha_produto = request.args.get('linha_produto')
+     obj_data = Consulta.Consulta()
+     rc = obj_data.dashboard_linha_produto (linha_produto, periodo)
+     return jsonify(rc)
+
+@app.route('/dashboard_indicador_produto')
+def dashboard_indicador_produto():
+     periodo = request.args.get('periodo')
+     indicador = request.args.get('indicador')
+     obj_data = Consulta.Consulta()
+     rc = obj_data.dashboard_indicador_produto (indicador, periodo)
+     return jsonify(rc)
 
 # --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 

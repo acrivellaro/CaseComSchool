@@ -1,0 +1,11 @@
+*.DS_Store
+__pycache__/
+*.pyc
+*.csv.zip
+*.xls
+*.xlsx
+*.mp4
+*.csv
+*.sav
+*.json
+

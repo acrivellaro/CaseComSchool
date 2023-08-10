@@ -19,8 +19,10 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 
     <!-- Chart.Js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+    <script src=
+    "https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js">
+        </script>
+
 
 </head>
 
@@ -42,8 +44,13 @@
 
                         <button class="nav-link" id="nav-linha-produto-tab" data-bs-toggle="tab"
                             data-bs-target="#nav-linha-produto" type="button" role="tab"
-                            aria-controls="nav-linha-produto" aria-selected="false">Linha de
-                            Produto</button>
+                            aria-controls="nav-linha-produto" aria-selected="false">
+                            Resumo Produto</button>
+
+                        <button class="nav-link" id="nav-indicador-produto-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-indicador-produto" type="button" role="tab"
+                            aria-controls="nav-indicador-produto" aria-selected="false">
+                            Indicador Produto</button>
                     </div>
                 </nav>
 
@@ -156,6 +163,7 @@
                                     <option value="despesas">Despesas</option>
                                 </select>
                             </div>
+
                             <div class="col-auto">
                                 <select class="form-select" id="periodo2" onchange="dashboard_indicador();">
                                     <option value="2022-XX">2022</option>
@@ -171,13 +179,97 @@
 
                     </div>
 
+                    <div class="tab-pane fade" id="nav-linha-produto" role="tabpanel"
+                        aria-labelledby="nav-linha-produto-tab">
+
+                        <div class="row" style="margin-top: 30px;">
+                            <div class="col-auto">
+                                <select class="form-select" id="periodo-linha-produto"
+                                    onchange="dashboard_linha_produto();">
+                                    <option value="2022-01">2022 - Janeiro</option>
+                                    <option value="2022-02">2022 - Fevereiro</option>
+                                    <option value="2022-03">2022 - Março</option>
+                                    <option value="2022-04">2022 - Abril</option>
+                                    <option value="2022-05">2022 - Maio</option>
+                                    <option value="2022-06">2022 - Junho</option>
+                                    <option value="2022-07">2022 - Julho</option>
+                                    <option value="2022-08">2022 - Agosto</option>
+                                    <option value="2022-09">2022 - Setembro</option>
+                                    <option value="2022-10">2022 - Outubro</option>
+                                    <option value="2022-11">2022 - Novembro</option>
+                                    <option value="2022-12">2022 - Dezembro</option>
+                                    <option value="2022-XX">2022 ** TOTAL **</option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
+                                <select class="form-select" id="linha-produto" onchange="dashboard_linha_produto();">
+                                    <option value="1">Sabonete</option>
+                                    <option value="2">Shampoo</option>
+                                    <option value="3">Lenço Umedecido</option>
+                                    <option value="4">Creme Dental</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 50px;">
+
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header">Faturamento</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="faturamento-linha"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header">Margem Bruta</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="margem-linha"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card">
+                                    <div class="card-header">Share Faturamento</div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="share-linha"></h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-indicador-produto" role="tabpanel"
+                        aria-labelledby="nav-linha-produto-tab">
+
+                        <div class="row" style="margin-top: 30px;">
+                            <div class="col-auto">
+                                <select class="form-select" id="periodo3" onchange="dashboard_indicador_produto();">
+                                    <option value="2022-XX">2022</option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
+                                <select class="form-select" id="indicador3" onchange="dashboard_indicador_produto();">
+                                    <option value="faturamento_linha">Faturamento</option>
+                                    <option value="margem_linha">Margem Bruta</option>
+                                    <option value="share_linha">Share</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 30px;">
+                            <div class="col-10">
+                                <canvas id="chart-indicador-2"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-
-
             </div>
         </div>
-
-
 
     </div>
 </body>
@@ -210,6 +302,7 @@
         })
     }
 
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
     function dashboard_indicador() {
 
@@ -230,6 +323,8 @@
         })
     }
 
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
     var chart;
     var is_refresh = false;
 
@@ -243,9 +338,11 @@
 
         var options = {
             responsive: true,
-            legend: {
-                display: false,
-                position: "right",
+            plugins: {
+                legend: {
+                    display: false,
+                    position: "right",
+                },
             },
             scales: {
                 yAxes: [{
@@ -262,6 +359,96 @@
         is_refresh = true;
     }
 
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    function dashboard_linha_produto() {
+
+        var periodo = $('#periodo-linha-produto option:selected').val();
+        var linha_produto = $('#linha-produto option:selected').val();
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: 'http://127.0.0.1:8000/dashboard_linha_produto',
+            data: {
+                "periodo": periodo,
+                "linha_produto": linha_produto
+            }
+        }).done(function (data, textStatus, jqXHR) {
+
+            $('#faturamento-linha').text(data.faturamento_linha);
+            $('#share-linha').text(data.share_linha);
+            $('#margem-linha').text(data.margem_linha);
+        })
+    }
+
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    function dashboard_indicador_produto() {
+
+        var indicador = $('#indicador3 option:selected').val();
+        var periodo = $('#periodo3 option:selected').val();
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: 'http://127.0.0.1:8000/dashboard_indicador_produto',
+            data: {
+                "periodo": periodo,
+                "indicador": indicador
+            }
+        }).done(function (data, textStatus, jqXHR) {
+            setup_chart_2();
+            draw_chart_2(data);
+        })
+    }
+
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    var chart_2;
+    var is_refresh_2 = false;
+
+    function setup_chart_2() {
+        if (is_refresh_2) {
+            chart_2.destroy();
+        }
+    }
+
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    function draw_chart_2(dados) {
+
+        var options = {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: "right",
+                },
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true
+                }
+            },
+        };
+
+        var ctx_chart_2 = $("#chart-indicador-2");
+        chart_2 = new Chart(ctx_chart_2, { type: "bar", data: dados, options: options });
+
+        is_refresh_2 = true;
+    }
+
+    //  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
 
 </script>
 

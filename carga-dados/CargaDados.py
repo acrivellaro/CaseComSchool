@@ -138,11 +138,68 @@ class CargaDados():
         self.conn.commit()
 
 
+    # --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    def carregar_vendas (self):
+
+        sql = ("DELETE FROM DATADRIVEN_CONSULTA.VENDAS_LINHA_PRODUTO")
+        self.my_cursor.execute (sql)
+
+
+        sql = ("SELECT  YEAR(DATA) AS YYYY, MONTH(DATA) AS MM, COD_LINHA_PRODUTO, SUM(V.VALOR) "
+               "FROM    DATADRIVEN_TRANSACIONAL.VENDAS V, DATADRIVEN_TRANSACIONAL.PRODUTOS P "
+               "WHERE   V.COD_PRODUTO = P.COD_PRODUTO "
+               "GROUP BY YYYY, MM, COD_LINHA_PRODUTO")
+               
+        self.my_cursor.execute (sql)
+        data = self.my_cursor.fetchall ()
+        for result in data:
+            yyyymm = ("%04d-%02d" % (result[0], result[1]))
+            cod_linha_produto = result[2]
+            valor = float(result[3])
+
+            sql = ("INSERT INTO DATADRIVEN_CONSULTA.VENDAS_LINHA_PRODUTO VALUES (%s, %s, %s)")
+            self.my_cursor.execute (sql, (yyyymm, cod_linha_produto, valor))
+
+        self.conn.commit()
+
+
+    # --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+
+    def carregar_custos (self):
+
+        sql = ("DELETE FROM DATADRIVEN_CONSULTA.CUSTOS_LINHA_PRODUTO")
+        self.my_cursor.execute (sql)
+
+        sql = ("SELECT ANO_MES, SUM(VALOR) FROM DATADRIVEN_CONSULTA.CUSTOS GROUP BY ANO_MES")
+        self.my_cursor.execute (sql)
+        data = self.my_cursor.fetchall ()
+        for result in data:
+
+            yyyymm = result[0]
+            valor = result[1]
+
+            sql = ("SELECT COD_LINHA_PRODUTO, VALOR_VENDA FROM DATADRIVEN_CONSULTA.VENDAS_LINHA_PRODUTO WHERE ANO_MES = %s")
+            self.my_cursor.execute (sql, (yyyymm))
+            data_2 = self.my_cursor.fetchall ()            
+
+            sum = 0
+            for result_2 in data_2:
+                sum += result_2[1]
+
+            for result_2 in data_2:
+                custo = result_2[1] / sum * valor
+                sql = ("INSERT INTO DATADRIVEN_CONSULTA.CUSTOS_LINHA_PRODUTO VALUES (%s, %s, %s)")
+                self.my_cursor.execute (sql, (yyyymm, result_2[0], custo))
+
+        self.conn.commit()
 
 
 
 if __name__ == "__main__":
     obj = CargaDados()
     #obj.carregar_receitas ()
-    obj.carregar_despesas ()
+    #obj.carregar_despesas ()
+    #obj.carregar_vendas()
+    obj.carregar_custos ()
 
